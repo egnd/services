@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  grafana:
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel"
+      DS_PROMETHEUS: http://${DC_MONITOR_STORAGE_HOST}:${DC_MONITOR_STORAGE_PORT}
+    ports:
+      - 127.0.0.1:${DC_GRAFANA_PORT}:3000
+
+volumes:
+  grafana_libs:
+    driver_opts:
+      type: none
+      o: bind
+      device: ./provisioning

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  monitor_host:
+    image: ${DC_MONITOR_HOST_IMAGE}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/rootfs
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)
+    restart: unless-stopped
+    networks:
+      monitoring_net:
+        aliases:
+          - ${DC_MONITOR_HOST_HOST}
+    labels:
+      org.label-schema.group: "monitoring"
+  monitor_containers:
+    image: ${DC_MONITOR_CONTAINERS_IMAGE}
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro # @TODO: check rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    restart: unless-stopped
+    networks:
+      monitoring_net:
+        aliases:
+          - ${DC_MONITOR_CONTAINERS_HOST}
+    labels:
+      org.label-schema.group: "monitoring"
+  monitor_storage: # @TODO: move to separate service
+    image: ${DC_MONITOR_STORAGE_IMAGE}
+    volumes:
+        - monitor_storage_data:/prometheus:rw
+        - monitor_storage_libs:/etc/prometheus:rw
+    command:
+      - --config.file=/etc/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.console.templates=/etc/prometheus/consoles
+      - --storage.tsdb.retention.time=200h
+      - --web.enable-lifecycle
+    restart: unless-stopped
+    # user: root
+    depends_on:
+      - monitor_host
+      - monitor_containers
+    networks:
+      monitoring_net:
+        aliases:
+          - ${DC_MONITOR_STORAGE_HOST}
+    labels:
+      org.label-schema.group: "monitoring"
+
+networks:
+  monitoring_net:
+    name: ${DC_NET_MONITORING}
+    driver: bridge
+
+volumes:
+  monitor_storage_data:
+    driver: local
+  monitor_storage_libs:
+    driver: local

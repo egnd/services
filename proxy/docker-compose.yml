@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: ${DC_PROXY_IMAGE}
+    environment:
+      HTTP_PORT: ${PROXY_HTTP_PORT}
+      HTTPS_PORT: ${PROXY_HTTPS_PORT}
+    restart: unless-stoped
+    volumes:
+      - proxy_templates:/etc/nginx/templates/hosts:ro
+    networks:
+      - proxy_net
+
+networks:
+  proxy_net:
+    name: ${DC_NET_PROXY}
+    driver: bridge
+
+volumes:
+  proxy_templates:
+    driver: local

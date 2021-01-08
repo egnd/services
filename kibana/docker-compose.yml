@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  kibana:
+    image: ${DC_KIBANA_IMAGE}
+    environment:
+      KIBANA_ELASTICSEARCH_URL: ${KIBANA_ES_HOSTS}
+    volumes:
+      - kibana_data:/bitnami:rw
+    restart: unless-stopped
+    networks:
+      - logging_net
+
+networks:
+  logging_net:
+    name: ${DC_NET_LOGGING}
+    driver: bridge
+
+volumes:
+  kibana_data:
+    driver: local

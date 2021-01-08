@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  logs_storage:
+    ports:
+      - 127.0.0.1:${DC_LOGS_STORAGE_PORT}:9200
+  logs_collector:
+    environment:
+      FBIT_INPUT_PORT: 24224
+      FBIT_OUTPUT_ES_HOST: ${DC_LOGS_STORAGE_HOST}
+      FBIT_OUTPUT_ES_PORT: ${DC_LOGS_STORAGE_PORT}
+    volumes:
+      - ./collector/config.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./collector/parsers.conf:/fluent-bit/etc/custom.parsers.conf:ro
+    ports:
+      - 127.0.0.1:${DC_LOGS_COLLECTOR_PORT}:24224
+      - 127.0.0.1:${DC_LOGS_COLLECTOR_PORT}:24224/udp
