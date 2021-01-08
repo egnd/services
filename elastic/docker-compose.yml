@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  elastic:
+    image: ${DC_ELASTIC_IMAGE}
+    restart: unless-stopped
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      discovery.type: single-node
+    volumes:
+      - es_data:/usr/share/elasticsearch/data:rw
+    networks:
+      es_net:
+        aliases:
+          - ${DC_ELASTIC_HOST}
+
+networks:
+  es_net:
+    name: ${DC_NET_ELASTIC}
+    driver: bridge
+
+volumes:
+  es_data:
+    driver: local

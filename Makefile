@@ -46,21 +46,27 @@ run-logging:
 	@$(MAKE) _compose RUN_SERVICE_NAME=logging
 stop-logging:
 	@$(MAKE) _compose-stop RUN_SERVICE_NAME=logging
+run-elastic:
+	@$(MAKE) _compose RUN_SERVICE_NAME=elastic
+stop-elastic:
+	@$(MAKE) _compose-stop RUN_SERVICE_NAME=elastic
+run-kibana:
+	@$(MAKE) _compose RUN_SERVICE_NAME=kibana
+stop-kibana:
+	@$(MAKE) _compose-stop RUN_SERVICE_NAME=kibana
 
 run-monitoring:
 	@$(MAKE) _compose RUN_SERVICE_NAME=monitoring
 stop-monitoring:
 	@$(MAKE) _compose-stop RUN_SERVICE_NAME=monitoring
-
+run-prometheus:
+	@$(MAKE) _compose RUN_SERVICE_NAME=prometheus
+stop-prometheus:
+	@$(MAKE) _compose-stop RUN_SERVICE_NAME=prometheus
 run-grafana:
 	@$(MAKE) _compose RUN_SERVICE_NAME=grafana
 stop-grafana:
 	@$(MAKE) _compose-stop RUN_SERVICE_NAME=grafana
-
-run-kibana:
-	@$(MAKE) _compose RUN_SERVICE_NAME=kibana
-stop-kibana:
-	@$(MAKE) _compose-stop RUN_SERVICE_NAME=kibana
 
 run-proxy:
 	@$(MAKE) _compose RUN_SERVICE_NAME=proxy

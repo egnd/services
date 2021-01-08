@@ -6,18 +6,21 @@ services:
       driver: fluentd
       options:
         tag: "{{.Name}}"
+    networks:
+      prometheus_net:
+        aliases:
+          - ${DC_MONITOR_HOST_HOST}
   monitor_containers:
     logging:
       driver: fluentd
       options:
         tag: "{{.Name}}"
-  monitor_storage:
-    volumes:
-      - ./prometheus.yml:/etc/prometheus.yml:ro
-    ports:
-      - 127.0.0.1:${DC_MONITOR_STORAGE_PORT}:9090
-    logging:
-      driver: fluentd
-      options:
-        tag: "{{.Name}}"
-  
+    networks:
+      prometheus_net:
+        aliases:
+          - ${DC_MONITOR_CONTAINERS_HOST}
+
+networks:
+  prometheus_net:
+    name: ${DC_NET_PROMETHEUS}
+    driver: bridge

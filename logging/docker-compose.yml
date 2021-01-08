@@ -1,31 +1,6 @@
 version: '3.8'
 
 services:
-  logs_storage: # @TODO: move to separate service
-    image: ${DC_LOGS_STORAGE_IMAGE}
-    restart: unless-stopped
-    environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      discovery.type: single-node
-    volumes:
-      - logs_data:/usr/share/elasticsearch/data:rw
-    networks:
-      logging_net:
-        aliases:
-          - ${DC_LOGS_STORAGE_HOST}
   logs_collector:
     image: ${DC_LOGS_COLLECTOR_IMAGE}
     restart: unless-stopped
-    networks:
-      - logging_net
-    depends_on:
-      - logs_storage
-
-networks:
-  logging_net:
-    name: ${DC_NET_LOGGING}
-    driver: bridge
-
-volumes:
-  logs_data:
-    driver: local

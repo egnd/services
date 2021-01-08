@@ -7,19 +7,9 @@ services:
     volumes:
       - grafana_libs:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana:rw
-    # user: root
-    networks:
-      - monitoring_net
-    labels:
-      org.label-schema.group: "monitoring"
 
 volumes:
   grafana_libs: # @TODO: check host and containers default dashboards
     driver: local
   grafana_data:
     driver: local
-
-networks:
-  monitoring_net:
-    name: ${DC_NET_MONITORING}
-    driver: bridge
