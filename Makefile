@@ -39,20 +39,19 @@ check-master: ## Check for latest master in current branch
 	@echo "All is OK"
 
 release: ## Create release archive
-	@rm -rf services-$(BUILD_VERSION).zip release && mkdir release
-	cp .env.dist release/
-	cp build/Makefile release/
-	cp README.md release/
-	cp -r fluentbit release/
-	cp -r elastic release/
-	cp -r kibana release/
-	cp -r exporters release/
-	cp -r prometheus release/
-	cp -r grafana release/
-	cp -r proxy release/
-	find release/*/ -type f -not -name 'docker-compose.yml' -delete
-	find release -type d -empty -delete
-	zip -9 -roT services-$(BUILD_VERSION).zip release
+	@rm -rf services-$(BUILD_VERSION).zip
+	@cp build/Makefile Makefile
+	zip -9 -roT services-$(BUILD_VERSION).zip \
+		.env.dist \
+		Makefile \
+		README.md \
+		fluentbit/docker-compose.yml \
+		elastic/docker-compose.yml \
+		kibana/docker-compose.yml \
+		exporters/docker-compose.yml \
+		prometheus/docker-compose.yml \
+		grafana/docker-compose.yml \
+		proxy/docker-compose.yml
 	@ls -lah services-$(BUILD_VERSION).zip
 
 run-fluentbit:
