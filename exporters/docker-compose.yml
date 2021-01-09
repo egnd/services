@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  monitor_host:
-    image: ${DC_MONITOR_HOST_IMAGE}
+  host:
+    image: ${DC_EXP_HOST_IMAGE}
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -13,8 +13,8 @@ services:
       - --path.sysfs=/host/sys
       - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)
     restart: unless-stopped
-  monitor_containers:
-    image: ${DC_MONITOR_CONTAINERS_IMAGE}
+  containers:
+    image: ${DC_EXP_CONTAINERS_IMAGE}
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro

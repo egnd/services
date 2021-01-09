@@ -5,10 +5,6 @@ export
 
 MAKEFLAGS += --always-make
 
-BUILD_VERSION=dev
-REGISTRY_IMAGE_PREFIX=egnd/services
-RUN_SERVICE_NAME=
-
 .PHONY: help
 
 help:
@@ -22,38 +18,6 @@ help:
 owner: ## Reset folder owner
 	sudo chown -R $$(id -u):$$(id -u) ./
 	@echo "Success"
-
-check-conflicts: ## Find git conflicts
-	@if grep -rn '^<<<\<<<< ' .; then exit 1; fi
-	@if grep -rn '^===\====$$' .; then exit 1; fi
-	@if grep -rn '^>>>\>>>> ' .; then exit 1; fi
-	@echo "All is OK"
-
-check-todos: ## Find TODO's
-	@if grep -rn '@TO\DO:' .; then exit 1; fi
-	@echo "All is OK"
-
-check-master: ## Check for latest master in current branch
-	@git remote update
-	@if ! git log --pretty=format:'%H' | grep $$(git log --pretty=format:'%H' -n 1 origin/master) > /dev/null; then exit 1; fi
-	@echo "All is OK"
-
-release: ## Create release archive
-	@rm -rf services-$(BUILD_VERSION).zip release && mkdir release
-	cp .env.dist release/
-	cp build/Makefile release/
-	cp README.md release/
-	cp -r fluentbit release/
-	cp -r elastic release/
-	cp -r kibana release/
-	cp -r exporters release/
-	cp -r prometheus release/
-	cp -r grafana release/
-	cp -r proxy release/
-	find release/*/ -type f -not -name 'docker-compose.yml' -delete
-	find release -type d -empty -delete
-	zip -9 -roT services-$(BUILD_VERSION).zip release
-	@ls -lah services-$(BUILD_VERSION).zip
 
 run-fluentbit:
 	@$(MAKE) _compose RUN_SERVICE_NAME=fluentbit
@@ -90,19 +54,24 @@ run-proxy: ## Run http proxy
 stop-proxy: ## Stop http proxy
 	@$(MAKE) _compose-stop RUN_SERVICE_NAME=proxy
 
+run-monitoring: run-exporters run-prometheus ## Run host and docker exporters and prometheus
+stop-monitoring: stop-prometheus stop-exporters## Stop host and docker exporters and prometheus
+
+run-logging: run-fluentbit run-elastic ## Run logs collector and logs storage
+stop-logging: stop-elastic stop-fluentbit ## Stop logs collector and logs storage
+
+run: run-logging run-kibana run-monitoring run-grafana run-proxy ## Run all services
+stop: stop-proxy stop-grafana stop-monitoring stop-kibana stop-logging ## Stop all services
+
 ########################################################################################################################
 
 _compose:
 ifeq ($(wildcard .env),)
 	cp .env.dist .env
 endif
-ifeq ($(wildcard $(RUN_SERVICE_NAME)/docker-compose.override.yml),)
-	@cd $(RUN_SERVICE_NAME) && \
-	if ls docker-compose.debug.yml > /dev/null; then ln -s docker-compose.debug.yml docker-compose.override.yml; fi
-endif
 	cd $(RUN_SERVICE_NAME) && \
-		docker-compose --project-name=$(DC_PROJECT_NAME)_$(RUN_SERVICE_NAME) --env-file=../.env up --abort-on-container-exit --renew-anon-volumes --attach-dependencies
+		docker-compose --project-name=$(DC_PROJECT_NAME)_$(RUN_SERVICE_NAME) --env-file=../.env up --detach
 
 _compose-stop:
 	cd $(RUN_SERVICE_NAME) && \
-		docker-compose --project-name=$(DC_PROJECT_NAME)_$(RUN_SERVICE_NAME) --env-file=../.env down --remove-orphans --volumes
+		docker-compose --project-name=$(DC_PROJECT_NAME)_$(RUN_SERVICE_NAME) --env-file=../.env down --remove-orphans

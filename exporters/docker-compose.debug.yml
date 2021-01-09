@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  monitor_host:
+  host:
     logging:
       driver: fluentd
       options:
@@ -9,8 +9,8 @@ services:
     networks:
       prometheus_net:
         aliases:
-          - ${DC_MONITOR_HOST_HOST}
-  monitor_containers:
+          - ${DC_EXP_HOST_HOST}
+  containers:
     logging:
       driver: fluentd
       options:
@@ -18,7 +18,7 @@ services:
     networks:
       prometheus_net:
         aliases:
-          - ${DC_MONITOR_CONTAINERS_HOST}
+          - ${DC_EXP_CONTAINERS_HOST}
 
 networks:
   prometheus_net:

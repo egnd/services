@@ -1,6 +1,6 @@
 version: '3.8'
 
 services:
-  logs_collector:
+  fluentbit:
     image: ${DC_LOGS_COLLECTOR_IMAGE}
     restart: unless-stopped

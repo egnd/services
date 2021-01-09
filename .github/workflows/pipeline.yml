@@ -1,0 +1,46 @@
+name: Pipeline
+on: 
+  push: 
+    branches:
+     - '*'
+jobs:
+
+  todos:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v2
+      - run: make check-todos
+  conflicts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make check-conflicts
+  gitflow:
+    runs-on: ubuntu-latest
+    if: "!contains(github.ref, 'master')"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: make check-master
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [todos, conflicts]
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          make release && cd release
+          make run
+      - run: sleep 10
+      - run: docker ps | fluentbit_fluentbit | grep Up
+      - run: docker ps | elastic_elastic | grep Up
+      - run: docker ps | kibana_kibana | grep Up
+      - run: |
+          docker ps | exporters_host | grep Up
+          docker ps | exporters_containers | grep Up
+      - run: docker ps | prometheus_prometheus | grep Up
+      - run: docker ps | grafana_grafana | grep Up
+      - run: docker ps | proxy_nginx | grep Up
+      - run: cd release && make stop
