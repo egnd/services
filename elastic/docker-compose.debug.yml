@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  elastic:
+    ports:
+      - 127.0.0.1:${DC_ELASTIC_PORT}:9200
+    logging:
+      driver: fluentd
+      options:
+        tag: "{{.Name}}"
+    networks:
+      proxy_net:
+        aliases:
+          - ${DC_ELASTIC_HOST}
+
+networks:
+  proxy_net:
+    name: ${DC_NET_PROXY}
+    driver: bridge

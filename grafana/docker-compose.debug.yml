@@ -6,9 +6,26 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
       GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel"
-      DS_PROMETHEUS: http://${DC_MONITOR_STORAGE_HOST}:${DC_MONITOR_STORAGE_PORT}
+      DS_PROMETHEUS: http://${DC_PROM_HOST}:${DC_PROM_PORT}
     ports:
       - 127.0.0.1:${DC_GRAFANA_PORT}:3000
+    logging:
+      driver: fluentd
+      options:
+        tag: "{{.Name}}"
+    networks:
+      prometheus_net: {}
+      proxy_net:
+        aliases:
+          - ${DC_GRAFANA_HOST}
+
+networks:
+  prometheus_net:
+    name: ${DC_NET_PROMETHEUS}
+    driver: bridge
+  proxy_net:
+    name: ${DC_NET_PROXY}
+    driver: bridge
 
 volumes:
   grafana_libs:

@@ -2,5 +2,24 @@ version: '3.8'
 
 services:
   kibana:
+    environment:
+      KIBANA_ELASTICSEARCH_URL: http://${DC_ELASTIC_HOST}:${DC_ELASTIC_PORT}
     ports:
       - 127.0.0.1:${DC_KIBANA_PORT}:5601
+    logging:
+      driver: fluentd
+      options:
+        tag: "{{.Name}}"
+    networks:
+      es_net: {}
+      proxy_net:
+        aliases:
+          - ${DC_KIBANA_HOST}
+
+networks:
+  es_net:
+    name: ${DC_NET_ELASTIC}
+    driver: bridge
+  proxy_net:
+    name: ${DC_NET_PROXY}
+    driver: bridge

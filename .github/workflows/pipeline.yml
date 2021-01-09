@@ -1,0 +1,53 @@
+name: Pipeline
+on: 
+  push: 
+    branches:
+     - '*'
+jobs:
+
+  todos:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v2
+      - run: make check-todos
+  conflicts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make check-conflicts
+  gitflow:
+    runs-on: ubuntu-latest
+    if: "!contains(github.ref, 'master')"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: make check-master
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [todos, conflicts]
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd elastic && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd exporters && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd fluentbit && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd grafana && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd kibana && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd prometheus && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd proxy && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: |
+          rm Makefile && cp build/Makefile Makefile
+          make run && sleep 10
+          docker ps
+      - run: docker ps | grep fluentbit_fluentbit | grep Up
+      - run: docker ps | grep elastic_elastic | grep Up
+      - run: docker ps | grep kibana_kibana | grep Up
+      - run: |
+          docker ps | grep exporters_host | grep Up
+          docker ps | grep exporters_containers | grep Up
+      - run: docker ps | grep prometheus_prometheus | grep Up
+      - run: docker ps | grep grafana_grafana | grep Up
+      - run: docker ps | grep proxy_nginx | grep Up
+      - run: make stop

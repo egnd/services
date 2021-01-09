@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  prometheus:
+    image: ${DC_PROM_IMAGE}
+    volumes:
+      - prom_data:/prometheus:rw
+      - prom_libs:/etc/prometheus:rw
+    command:
+      - --config.file=/etc/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.console.templates=/etc/prometheus/consoles
+      - --storage.tsdb.retention.time=200h
+      - --web.enable-lifecycle
+    restart: unless-stopped
+    networks:
+      prometheus_net:
+        aliases:
+          - ${DC_PROM_HOST}
+
+networks:
+  prometheus_net:
+    name: ${DC_NET_PROMETHEUS}
+    driver: bridge
+
+volumes:
+  prom_data:
+    driver: local
+  prom_libs:
+    driver: local

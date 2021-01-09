@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  host:
+    logging:
+      driver: fluentd
+      options:
+        tag: "{{.Name}}"
+    networks:
+      prometheus_net:
+        aliases:
+          - ${DC_EXP_HOST_HOST}
+  containers:
+    logging:
+      driver: fluentd
+      options:
+        tag: "{{.Name}}"
+    networks:
+      prometheus_net:
+        aliases:
+          - ${DC_EXP_CONTAINERS_HOST}
+
+networks:
+  prometheus_net:
+    name: ${DC_NET_PROMETHEUS}
+    driver: bridge

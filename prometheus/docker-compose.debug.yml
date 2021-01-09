@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  prometheus:
+    volumes:
+      - ./prometheus.yml:/etc/prometheus.yml:ro
+    ports:
+      - 127.0.0.1:${DC_PROM_PORT}:9090
+    logging:
+      driver: fluentd
+      options:
+        tag: "{{.Name}}"
+    networks:
+      proxy_net:
+        aliases:
+          - ${DC_PROM_HOST}
+
+networks:
+  proxy_net:
+    name: ${DC_NET_PROXY}
+    driver: bridge
