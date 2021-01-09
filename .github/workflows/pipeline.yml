@@ -30,17 +30,24 @@ jobs:
     needs: [todos, conflicts]
     steps:
       - uses: actions/checkout@v2
+      - run: cd elastic && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd exporters && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd fluentbit && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd grafana && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd kibana && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd prometheus && ln -s docker-compose.debug.yml docker-compose.override.yml
+      - run: cd proxy && ln -s docker-compose.debug.yml docker-compose.override.yml
       - run: |
-          rm Makefile && cp build/Makefile Makefile
+          rm Makefile && cp build/Makefile Makefilerm Makefile && cp build/Makefile Makefile
           make run && sleep 10
           docker ps
-      - run: docker ps | fluentbit_fluentbit | grep Up
-      - run: docker ps | elastic_elastic | grep Up
-      - run: docker ps | kibana_kibana | grep Up
+      - run: docker ps | grep fluentbit_fluentbit | grep Up
+      - run: docker ps | grep elastic_elastic | grep Up
+      - run: docker ps | grep kibana_kibana | grep Up
       - run: |
-          docker ps | exporters_host | grep Up
-          docker ps | exporters_containers | grep Up
-      - run: docker ps | prometheus_prometheus | grep Up
-      - run: docker ps | grafana_grafana | grep Up
-      - run: docker ps | proxy_nginx | grep Up
+          docker ps | grep exporters_host | grep Up
+          docker ps | grep exporters_containers | grep Up
+      - run: docker ps | grep prometheus_prometheus | grep Up
+      - run: docker ps | grep grafana_grafana | grep Up
+      - run: docker ps | grep proxy_nginx | grep Up
       - run: make stop
