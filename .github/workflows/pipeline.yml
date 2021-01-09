@@ -30,10 +30,8 @@ jobs:
     needs: [todos, conflicts]
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          make release && cd release
-          make run
-      - run: sleep 10
+      - run: make run-fluentbit run-elastic run-kibana run-exporters run-prometheus run-grafana run-proxy
+      - run: sleep 10 && docker ps
       - run: docker ps | fluentbit_fluentbit | grep Up
       - run: docker ps | elastic_elastic | grep Up
       - run: docker ps | kibana_kibana | grep Up
@@ -43,4 +41,4 @@ jobs:
       - run: docker ps | prometheus_prometheus | grep Up
       - run: docker ps | grafana_grafana | grep Up
       - run: docker ps | proxy_nginx | grep Up
-      - run: cd release && make stop
+      - run: make stop-proxy stop-grafana stop-prometheus stop-exporters stop-kibana stop-elastic stop-fluentbit
