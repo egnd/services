@@ -74,4 +74,4 @@ endif
 
 _compose-stop:
 	cd $(RUN_SERVICE_NAME) && \
-		docker-compose --project-name=$(DC_PROJECT_NAME)_$(RUN_SERVICE_NAME) --env-file=../.env down --remove-orphans
+		docker-compose --project-name=$(DC_PROJECT_NAME)_$(RUN_SERVICE_NAME) --env-file=../.env stop
