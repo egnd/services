@@ -38,7 +38,7 @@ jobs:
       - run: cd prometheus && ln -s docker-compose.debug.yml docker-compose.override.yml
       - run: cd proxy && ln -s docker-compose.debug.yml docker-compose.override.yml
       - run: |
-          rm Makefile && cp build/Makefile Makefilerm Makefile && cp build/Makefile Makefile
+          rm Makefile && cp build/Makefile Makefile
           make run && sleep 10
           docker ps
       - run: docker ps | grep fluentbit_fluentbit | grep Up
